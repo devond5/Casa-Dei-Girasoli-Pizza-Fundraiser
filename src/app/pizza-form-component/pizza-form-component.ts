@@ -1,0 +1,152 @@
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import {
+  ReactiveFormsModule,
+  FormsModule,
+  FormBuilder,
+  FormGroup,
+  Validators,
+} from '@angular/forms';
+import emailjs from '@emailjs/browser'; // <-- 1. Import EmailJS
+
+interface PizzaDateOption {
+  date: string;
+  display: string;
+  selected: boolean;
+  slices: number;
+}
+
+@Component({
+  selector: 'app-pizza-form',
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule, FormsModule],
+  templateUrl: './pizza-form-component.html',
+  styleUrls: ['./pizza-form-component.css'],
+})
+export class PizzaFormComponent implements OnInit {
+  orderForm: FormGroup;
+  isSubmitted = false;
+  submittedData: any = null;
+  isSubmitting = false; // Loading state
+
+  classList: string[] = [
+    'Primary 1 (Ms. NoElle and Ms. Aimee)',
+    'Primary 2 (Ms. Nila and Ms. Avery)',
+    'Lower El (Ms. Rissa)',
+  ];
+
+  pizzaDates: PizzaDateOption[] = [
+    { date: '2026-11-04', display: 'Wed, Nov 4, 2026', selected: false, slices: 1 },
+    { date: '2026-11-11', display: 'Wed, Nov 11, 2026 (Veterans Day)', selected: false, slices: 1 },
+    { date: '2026-11-18', display: 'Wed, Nov 18, 2026', selected: false, slices: 1 },
+    { date: '2026-12-02', display: 'Wed, Dec 2, 2026', selected: false, slices: 1 },
+    { date: '2026-12-09', display: 'Wed, Dec 9, 2026', selected: false, slices: 1 },
+    { date: '2026-12-16', display: 'Wed, Dec 16, 2026', selected: false, slices: 1 },
+  ];
+
+  constructor(private fb: FormBuilder) {
+    this.orderForm = this.fb.group({
+      parentFirstName: ['', Validators.required],
+      parentLastName: ['', Validators.required],
+      parentEmail: ['', [Validators.required, Validators.email]],
+      parentPhone: ['', [Validators.required, Validators.minLength(14)]],
+      studentFirstName: ['', Validators.required],
+      studentLastName: ['', Validators.required],
+      studentClass: ['', Validators.required],
+    });
+  }
+
+  ngOnInit() {
+    this.orderForm.get('parentPhone')?.valueChanges.subscribe((value) => {
+      if (!value) return;
+      const formatted = this.formatUSPhoneNumber(value);
+      if (formatted !== value) {
+        this.orderForm.get('parentPhone')?.setValue(formatted, { emitEvent: false });
+      }
+    });
+  }
+
+  formatUSPhoneNumber(value: string): string {
+    const numbers = value.replace(/\D/g, '').substring(0, 10);
+    if (numbers.length === 0) return '';
+    if (numbers.length <= 3) return `(${numbers}`;
+    if (numbers.length <= 6) return `(${numbers.slice(0, 3)}) ${numbers.slice(3)}`;
+    return `(${numbers.slice(0, 3)}) ${numbers.slice(3, 6)}-${numbers.slice(6)}`;
+  }
+
+  get totalCost(): number {
+    return this.pizzaDates.reduce((sum, item) => {
+      if (!item.selected) return sum;
+      return sum + (item.slices === 2 ? 6 : 4);
+    }, 0);
+  }
+
+  get selectedCount(): number {
+    return this.pizzaDates.filter((d) => d.selected).length;
+  }
+
+  onSubmit() {
+    if (this.orderForm.invalid || this.selectedCount === 0) {
+      alert('Please fill out all required fields and select at least one Wednesday pizza date.');
+      return;
+    }
+
+    this.isSubmitting = true;
+    const formValues = this.orderForm.value;
+    const selectedDatesList = this.pizzaDates.filter((d) => d.selected);
+
+    // Format the order summary nicely for the email template body
+    const formattedSummary = selectedDatesList
+      .map(
+        (d) =>
+          `• ${d.display} &mdash; <strong>${d.slices} slice(s)</strong> ($${d.slices === 2 ? 6 : 4})`,
+      )
+      .join('<br>');
+
+    const venmoNote = `${formValues.parentFirstName} ${formValues.parentLastName}, ${formValues.studentFirstName} ${formValues.studentLastName} - Pizza fundraiser`;
+
+    // 2. Prepare parameters matching your EmailJS template variables
+    const templateParams = {
+      parent_name: `${formValues.parentFirstName} ${formValues.parentLastName}`,
+      parent_email: formValues.parentEmail,
+      // Pass parent email AND your coordinator/fundraiser inbox separated by comma
+      recipient_emails: `${formValues.parentEmail}, coordinator@casadeigirasoli.org`,
+      student_name: `${formValues.studentFirstName} ${formValues.studentLastName}`,
+      student_class: formValues.studentClass,
+      parent_phone: formValues.parentPhone,
+      order_summary: formattedSummary,
+      total_cost: `$${this.totalCost}`,
+      venmo_note: venmoNote,
+    };
+
+    // 3. Send via EmailJS (Replace with your actual Service ID, Template ID, and Public Key)
+    emailjs
+      .send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', templateParams, 'YOUR_PUBLIC_KEY')
+      .then(() => {
+        this.submittedData = {
+          ...formValues,
+          dates: selectedDatesList,
+          total: this.totalCost,
+          venmoNote,
+        };
+        this.isSubmitting = false;
+        this.isSubmitted = true;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      })
+      .catch((error) => {
+        console.error('Email sending failed:', error);
+        alert('There was an error submitting your order. Please try again.');
+        this.isSubmitting = false;
+      });
+  }
+
+  resetForm() {
+    this.orderForm.reset();
+    this.pizzaDates.forEach((d) => {
+      d.selected = false;
+      d.slices = 1;
+    });
+    this.isSubmitted = false;
+    this.submittedData = null;
+  }
+}

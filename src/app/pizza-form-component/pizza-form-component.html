@@ -1,0 +1,241 @@
+<div class="min-h-screen bg-amber-50 py-8 px-4 sm:px-6 lg:px-8 font-sans">
+  <div
+    class="max-w-3xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden border border-amber-200"
+  >
+    <!-- Header Banner -->
+    <div class="bg-amber-700 py-6 px-8 text-white text-center">
+      <h1 class="text-3xl font-extrabold tracking-wide">Casa Dei Girasoli Pizza Fundraiser</h1>
+      <p class="text-amber-100 mt-1 text-sm sm:text-base">
+        November & December Wednesday Pizza Program
+      </p>
+      <p class="text-amber-100 mt-1 text-sm sm:text-base">
+        **Please submit ONE form and ONE payment PER student**
+      </p>
+    </div>
+
+    <!-- Order Form View -->
+    <div *ngIf="!isSubmitted; else confirmationView" class="p-6 sm:p-10">
+      <form [formGroup]="orderForm" (ngSubmit)="onSubmit()" class="space-y-6">
+        <!-- Parent Information -->
+        <div class="bg-amber-50/60 p-5 rounded-xl border border-amber-100">
+          <h2 class="text-lg font-semibold text-amber-900 mb-4 flex items-center gap-2">
+            <span>👤</span> Parent / Guardian Information
+          </h2>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">First Name *</label>
+              <input
+                type="text"
+                formControlName="parentFirstName"
+                class="w-full rounded-lg border-gray-300 border px-3 py-2 focus:ring-2 focus:ring-amber-500 focus:outline-none bg-white"
+                placeholder="Jane"
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Last Name *</label>
+              <input
+                type="text"
+                formControlName="parentLastName"
+                class="w-full rounded-lg border-gray-300 border px-3 py-2 focus:ring-2 focus:ring-amber-500 focus:outline-none bg-white"
+                placeholder="Doe"
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1"
+                >Email Address * (for confirmation)</label
+              >
+              <input
+                type="email"
+                formControlName="parentEmail"
+                class="w-full rounded-lg border-gray-300 border px-3 py-2 focus:ring-2 focus:ring-amber-500 focus:outline-none bg-white"
+                placeholder="jane.doe@example.com"
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Phone Number *</label>
+              <input
+                type="tel"
+                formControlName="parentPhone"
+                maxlength="14"
+                class="w-full rounded-lg border-gray-300 border px-3 py-2 focus:ring-2 focus:ring-amber-500 focus:outline-none bg-white"
+                placeholder="(555) 123-4567"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Student Information -->
+        <div class="bg-amber-50/60 p-5 rounded-xl border border-amber-100">
+          <h2 class="text-lg font-semibold text-amber-900 mb-4 flex items-center gap-2">
+            <span>🎒</span> Student Information
+          </h2>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1"
+                >Student First Name *</label
+              >
+              <input
+                type="text"
+                formControlName="studentFirstName"
+                class="w-full rounded-lg border-gray-300 border px-3 py-2 focus:ring-2 focus:ring-amber-500 focus:outline-none bg-white"
+                placeholder="Leo"
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1"
+                >Student Last Name *</label
+              >
+              <input
+                type="text"
+                formControlName="studentLastName"
+                class="w-full rounded-lg border-gray-300 border px-3 py-2 focus:ring-2 focus:ring-amber-500 focus:outline-none bg-white"
+                placeholder="Doe"
+              />
+            </div>
+            <div class="sm:col-span-2">
+              <label class="block text-sm font-medium text-gray-700 mb-1"
+                >Classroom / Teacher *</label
+              >
+              <select
+                formControlName="studentClass"
+                class="w-full rounded-lg border-gray-300 border px-3 py-2 focus:ring-2 focus:ring-amber-500 focus:outline-none bg-white"
+              >
+                <option value="" disabled selected>-- Select Classroom --</option>
+                <option *ngFor="let cls of classList" [value]="cls">
+                  {{ cls }}
+                </option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Date Selection & Slices -->
+        <div class="border border-amber-200 rounded-xl p-5 bg-white">
+          <h2 class="text-lg font-semibold text-amber-900 mb-2 flex items-center gap-2">
+            <span>🍕</span> Select Pizza Wednesdays (Nov & Dec)
+          </h2>
+          <p class="text-xs text-gray-500 mb-4">Pricing: 1 Slice = $4 | 2 Slices = $6</p>
+
+          <div class="space-y-3">
+            <div
+              *ngFor="let option of pizzaDates"
+              class="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-lg border border-gray-100 hover:bg-amber-50/30 transition gap-2"
+            >
+              <label class="flex items-center space-x-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  [(ngModel)]="option.selected"
+                  [ngModelOptions]="{ standalone: true }"
+                  class="w-5 h-5 text-amber-600 rounded focus:ring-amber-500 border-gray-300"
+                />
+                <span class="font-medium text-gray-800 text-sm sm:text-base">{{
+                  option.display
+                }}</span>
+              </label>
+
+              <!-- Slice Dropdown appears when date is checked -->
+              <div *ngIf="option.selected" class="flex items-center space-x-2 sm:ml-auto">
+                <span class="text-xs text-gray-600 font-medium">Slices:</span>
+                <select
+                  [(ngModel)]="option.slices"
+                  [ngModelOptions]="{ standalone: true }"
+                  class="rounded-md border border-gray-300 px-2 py-1 text-sm bg-white focus:ring-amber-500 focus:border-amber-500"
+                >
+                  <option [ngValue]="1">1 Slice ($4)</option>
+                  <option [ngValue]="2">2 Slices ($6)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sticky Bottom Total & Submit Bar -->
+        <div
+          class="bg-stone-900 text-white p-5 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-4"
+        >
+          <div>
+            <span class="text-gray-300 text-sm block">Total Estimated Cost:</span>
+            <span class="text-3xl font-extrabold text-amber-400">${{ totalCost }}</span>
+            <span class="text-xs text-gray-400 ml-2">({{ selectedCount }} date(s) selected)</span>
+          </div>
+          <button
+            type="submit"
+            [disabled]="orderForm.invalid || selectedCount === 0"
+            class="w-full sm:w-auto bg-amber-500 hover:bg-amber-600 disabled:bg-gray-600 disabled:cursor-not-allowed text-stone-950 font-bold px-8 py-3 rounded-xl transition shadow-lg"
+          >
+            Submit Order & View Payment
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Confirmation & Venmo Payment Screen -->
+    <ng-template #confirmationView>
+      <div class="p-6 sm:p-10 space-y-6">
+        <div
+          class="bg-emerald-50 border border-emerald-200 text-emerald-800 p-4 rounded-xl flex items-start gap-3"
+        >
+          <span class="text-2xl">✅</span>
+          <div>
+            <h3 class="font-bold text-lg">Order Successfully Submitted!</h3>
+            <p class="text-sm text-emerald-700">
+              A confirmation email and breakdown have been sent to
+              <strong>{{ submittedData.parentEmail }}</strong
+              >.
+            </p>
+          </div>
+        </div>
+
+        <div class="bg-amber-50 border border-amber-200 rounded-xl p-6 text-center space-y-4">
+          <h3 class="text-xl font-bold text-amber-900">Final Step: Complete Your Venmo Payment</h3>
+          <p class="text-gray-700 text-sm">
+            Please scan the QR code below or search our handle to submit payment for your total
+            balance of <strong class="text-amber-700 text-lg">${{ submittedData.total }}</strong
+            >.
+          </p>
+
+          <!-- Venmo QR Code Box -->
+          <div
+            class="bg-white p-4 inline-block rounded-xl shadow-md border border-amber-200 mx-auto text-center"
+          >
+            <img
+              src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https%3A%2F%2Fwww.venmo.com%2Fu%2Fcasadeigirasoli"
+              alt="Venmo QR Code for Casa Dei Girasoli"
+              class="w-48 h-48 mx-auto rounded-lg"
+            />
+            <span class="text-xs text-amber-900 font-bold block mt-2">@casadeigirasoli</span>
+          </div>
+
+          <!-- Mandatory Instructions & Exact Note -->
+          <div
+            class="bg-white border-2 border-dashed border-amber-300 p-4 rounded-xl max-w-md mx-auto text-left space-y-2"
+          >
+            <p class="text-xs font-bold text-amber-900 uppercase tracking-wide">
+              ⚠️ Mandatory Venmo Payment Note:
+            </p>
+            <p
+              class="text-sm text-gray-800 font-mono bg-amber-50 p-2 rounded border border-amber-200 select-all"
+            >
+              {{ submittedData.parentFirstName }} {{ submittedData.parentLastName }},
+              {{ submittedData.studentFirstName }} {{ submittedData.studentLastName }} - Pizza
+              fundraiser
+            </p>
+            <p class="text-xs text-gray-500">
+              You must include this exact note in your Venmo transaction description so we can match
+              your payment to your student's order.
+            </p>
+          </div>
+        </div>
+
+        <div class="flex justify-center pt-4">
+          <button
+            (click)="resetForm()"
+            class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold px-6 py-2.5 rounded-xl transition text-sm"
+          >
+            ← Submit Another Order
+          </button>
+        </div>
+      </div>
+    </ng-template>
+  </div>
+</div>
