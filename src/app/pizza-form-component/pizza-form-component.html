@@ -121,11 +121,12 @@
               *ngFor="let option of pizzaDates"
               class="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-lg border border-gray-100 hover:bg-amber-50/30 transition gap-2"
             >
+              <!-- Checkbox with explicit (change) event -->
               <label class="flex items-center space-x-3 cursor-pointer">
                 <input
                   type="checkbox"
-                  [(ngModel)]="option.selected"
-                  [ngModelOptions]="{ standalone: true }"
+                  [checked]="option.selected"
+                  (change)="toggleDate(option)"
                   class="w-5 h-5 text-amber-600 rounded focus:ring-amber-500 border-gray-300"
                 />
                 <span class="font-medium text-gray-800 text-sm sm:text-base">{{
@@ -133,16 +134,16 @@
                 }}</span>
               </label>
 
-              <!-- Slice Dropdown appears when date is checked -->
+              <!-- Slice Dropdown shown when selected -->
               <div *ngIf="option.selected" class="flex items-center space-x-2 sm:ml-auto">
                 <span class="text-xs text-gray-600 font-medium">Slices:</span>
                 <select
-                  [(ngModel)]="option.slices"
-                  [ngModelOptions]="{ standalone: true }"
-                  class="rounded-md border border-gray-300 px-2 py-1 text-sm bg-white focus:ring-amber-500 focus:border-amber-500"
+                  [value]="option.slices"
+                  (change)="updateSlices(option, $event)"
+                  class="rounded-md border border-gray-300 px-2 py-1 text-sm bg-white focus:ring-amber-500"
                 >
-                  <option [ngValue]="1">1 Slice ($4)</option>
-                  <option [ngValue]="2">2 Slices ($6)</option>
+                  <option [value]="1">1 Slice ($4)</option>
+                  <option [value]="2">2 Slices ($6)</option>
                 </select>
               </div>
             </div>

@@ -57,7 +57,7 @@ export class PizzaFormComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.orderForm.get('parentPhone')?.valueChanges.subscribe((value) => {
+    this.orderForm.get('parentPhone')?.valueChanges.subscribe(value => {
       if (!value) return;
       const formatted = this.formatUSPhoneNumber(value);
       if (formatted !== value) {
@@ -149,4 +149,13 @@ export class PizzaFormComponent implements OnInit {
     this.isSubmitted = false;
     this.submittedData = null;
   }
+
+  toggleDate(option: PizzaDateOption) {
+  option.selected = !option.selected;
+}
+
+updateSlices(option: PizzaDateOption, event: Event) {
+  const select = event.target as HTMLSelectElement;
+  option.slices = parseInt(select.value, 10);
+}
 }
