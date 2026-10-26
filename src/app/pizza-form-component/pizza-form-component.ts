@@ -54,10 +54,12 @@ export class PizzaFormComponent implements OnInit {
       studentLastName: ['', Validators.required],
       studentClass: ['', Validators.required],
     });
+
+    emailjs.init('uPrASEZVKK_WCF0w7');
   }
 
   ngOnInit() {
-    this.orderForm.get('parentPhone')?.valueChanges.subscribe(value => {
+    this.orderForm.get('parentPhone')?.valueChanges.subscribe((value) => {
       if (!value) return;
       const formatted = this.formatUSPhoneNumber(value);
       if (formatted !== value) {
@@ -121,7 +123,7 @@ export class PizzaFormComponent implements OnInit {
 
     // 3. Send via EmailJS (Replace with your actual Service ID, Template ID, and Public Key)
     emailjs
-      .send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', templateParams, 'YOUR_PUBLIC_KEY')
+      .send('service_cgfvbyc', 'template_ojgc687', templateParams, 'uPrASEZVKK_WCF0w7')
       .then(() => {
         this.submittedData = {
           ...formValues,
@@ -151,11 +153,14 @@ export class PizzaFormComponent implements OnInit {
   }
 
   toggleDate(option: PizzaDateOption) {
-  option.selected = !option.selected;
-}
+    option.selected = !option.selected;
+    if (option.selected) {
+      option.slices = 1; 
+    }
+  }
 
-updateSlices(option: PizzaDateOption, event: Event) {
-  const select = event.target as HTMLSelectElement;
-  option.slices = parseInt(select.value, 10);
-}
+  updateSlices(option: PizzaDateOption, event: Event) {
+    const select = event.target as HTMLSelectElement;
+    option.slices = parseInt(select.value, 10);
+  }
 }

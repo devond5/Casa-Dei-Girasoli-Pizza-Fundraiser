@@ -138,12 +138,12 @@
               <div *ngIf="option.selected" class="flex items-center space-x-2 sm:ml-auto">
                 <span class="text-xs text-gray-600 font-medium">Slices:</span>
                 <select
-                  [value]="option.slices"
-                  (change)="updateSlices(option, $event)"
+                  [(ngModel)]="option.slices"
+                  [ngModelOptions]="{ standalone: true }"
                   class="rounded-md border border-gray-300 px-2 py-1 text-sm bg-white focus:ring-amber-500"
                 >
-                  <option [value]="1">1 Slice ($4)</option>
-                  <option [value]="2">2 Slices ($6)</option>
+                  <option [ngValue]="1">1 Slice ($4)</option>
+                  <option [ngValue]="2">2 Slices ($6)</option>
                 </select>
               </div>
             </div>
