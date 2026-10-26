@@ -21,7 +21,7 @@ interface PizzaDateOption {
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, FormsModule],
   templateUrl: './pizza-form-component.html',
-  styleUrls: ['./pizza-form-component.css'],
+  styleUrls: ['./pizza-form-component.scss'],
 })
 export class PizzaFormComponent implements OnInit {
   orderForm: FormGroup;
