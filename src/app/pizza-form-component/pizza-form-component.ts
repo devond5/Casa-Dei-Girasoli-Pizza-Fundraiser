@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   ReactiveFormsModule,
@@ -44,7 +44,10 @@ export class PizzaFormComponent implements OnInit {
     { date: '2026-12-16', display: 'Wed, Dec 16, 2026', selected: false, slices: 1 },
   ];
 
-  constructor(private fb: FormBuilder) {
+  constructor(
+    private fb: FormBuilder,
+    private cdr: ChangeDetectorRef,
+  ) {
     this.orderForm = this.fb.group({
       parentFirstName: ['', Validators.required],
       parentLastName: ['', Validators.required],
@@ -131,13 +134,40 @@ export class PizzaFormComponent implements OnInit {
         };
         this.isSubmitting = false;
         this.isSubmitted = true;
+        this.updateSpreadsheet(templateParams);
+        this.cdr.detectChanges();
         window.scrollTo({ top: 0, behavior: 'smooth' });
       })
       .catch((error) => {
         console.error('Email sending failed:', error);
         alert('There was an error submitting your order. Please try again.');
+        this.cdr.detectChanges();
         this.isSubmitting = false;
       });
+  }
+  updateSpreadsheet(templateParams: any) {
+    // Add your Google Apps Script Web App URL here
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzl2VFop4j-qqYRWYJd_0dyNMYcMniyesMNGGx1PQA0tv-IaPC6p3Jv_Y5mke8PG4mi/exec';
+
+    // Inside your emailjs .then() success block, add this fetch call:
+    const sheetData = {
+      parent_name: templateParams.parent_name,
+      parent_email: templateParams.parent_email,
+      student_name: templateParams.student_name,
+      student_class: templateParams.student_class,
+      parent_phone: templateParams.parent_phone,
+      total_cost: templateParams.total_cost,
+    };
+
+    // Send data to Google Sheets in the background
+    fetch(SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors', // Bypasses CORS restrictions for background logging
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(sheetData),
+    }).catch((err) => console.error('Sheet logging error:', err));
   }
 
   resetForm() {
@@ -153,7 +183,7 @@ export class PizzaFormComponent implements OnInit {
   toggleDate(option: PizzaDateOption) {
     option.selected = !option.selected;
     if (option.selected) {
-      option.slices = 1; 
+      option.slices = 1;
     }
   }
 
