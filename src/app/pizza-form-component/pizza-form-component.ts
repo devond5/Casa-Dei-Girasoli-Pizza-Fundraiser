@@ -111,8 +111,6 @@ export class PizzaFormComponent implements OnInit {
     const templateParams = {
       parent_name: `${formValues.parentFirstName} ${formValues.parentLastName}`,
       parent_email: formValues.parentEmail,
-      // Pass parent email AND your coordinator/fundraiser inbox separated by comma
-      recipient_emails: `${formValues.parentEmail}, coordinator@casadeigirasoli.org`,
       student_name: `${formValues.studentFirstName} ${formValues.studentLastName}`,
       student_class: formValues.studentClass,
       parent_phone: formValues.parentPhone,
