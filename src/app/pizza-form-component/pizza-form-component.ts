@@ -39,9 +39,6 @@ export class PizzaFormComponent implements OnInit {
     { date: '2026-11-04', display: 'Wed, Nov 4, 2026', selected: false, slices: 1 },
     { date: '2026-11-11', display: 'Wed, Nov 11, 2026 (Veterans Day)', selected: false, slices: 1 },
     { date: '2026-11-18', display: 'Wed, Nov 18, 2026', selected: false, slices: 1 },
-    { date: '2026-12-02', display: 'Wed, Dec 2, 2026', selected: false, slices: 1 },
-    { date: '2026-12-09', display: 'Wed, Dec 9, 2026', selected: false, slices: 1 },
-    { date: '2026-12-16', display: 'Wed, Dec 16, 2026', selected: false, slices: 1 },
   ];
 
   constructor(
@@ -82,8 +79,22 @@ export class PizzaFormComponent implements OnInit {
   get totalCost(): number {
     return this.pizzaDates.reduce((sum, item) => {
       if (!item.selected) return sum;
-      return sum + (item.slices === 2 ? 6 : 4);
+      return sum + (this.sliceToSum(item.slices));
     }, 0);
+  }
+
+  sliceToSum(slice: number): number {
+    switch (slice) {
+      case 1:
+        return 4;
+      case 2:
+        return 6;
+      case 3:
+        return 5;
+      case 4:
+        return 7;
+    }
+    return 0;
   }
 
   get selectedCount(): number {
@@ -147,7 +158,8 @@ export class PizzaFormComponent implements OnInit {
   }
   updateSpreadsheet(templateParams: any) {
     // Add your Google Apps Script Web App URL here
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzl2VFop4j-qqYRWYJd_0dyNMYcMniyesMNGGx1PQA0tv-IaPC6p3Jv_Y5mke8PG4mi/exec';
+    const SCRIPT_URL =
+      'https://script.google.com/macros/s/AKfycbzl2VFop4j-qqYRWYJd_0dyNMYcMniyesMNGGx1PQA0tv-IaPC6p3Jv_Y5mke8PG4mi/exec';
 
     // Inside your emailjs .then() success block, add this fetch call:
     const sheetData = {
